@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Shop — Sign In</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; background: #f2f4f8; }
+    .card { max-width: 360px; margin: 80px auto; background: #fff; padding: 28px;
+            border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #06c; color: #fff; border: 0; border-radius: 6px; }
+    h2 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sign in to My Shop</h2>
+    <!-- A normal login: the form posts back to the same page. Phish Guard
+         should stay quiet here (no warning). -->
+    <form action="" method="post">
+      <input type="email" placeholder="Email" />
+      <input type="password" placeholder="Password" />
+      <button type="submit">Sign in</button>
+    </form>
+    <p style="font-size:12px;color:#888">This is a safe local test page for Phish Guard.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Known-legitimate URLs, including real brand sign-in pages that MUST NOT be
+# flagged. Used to measure the false-positive rate.
+https://www.paypal.com/signin
+https://accounts.google.com/ServiceLogin
+https://login.microsoftonline.com/
+https://signin.aws.amazon.com/
+https://www.apple.com/
+https://appleid.apple.com/
+https://www.icloud.com/
+https://www.facebook.com/login
+https://www.instagram.com/accounts/login/
+https://www.netflix.com/login
+https://www.linkedin.com/login
+https://secure.bankofamerica.com/login/sign-in/signOnV2Screen.go
+https://connect.secure.wellsfargo.com/
+https://secure07a.chase.com/web/auth/
+https://www.coinbase.com/signin
+https://accounts.binance.com/en/login
+https://www.dhl.com/us-en/home/tracking.html
+https://www.fedex.com/en-us/home.html
+https://www.amazon.com/
+https://github.com/login

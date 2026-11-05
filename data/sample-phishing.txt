@@ -1,0 +1,24 @@
+# Sample phishing-style URLs for the evaluation. These are SYNTHETIC examples
+# written by hand to exercise the detector. They are NOT live phishing links.
+# Replace this file with a real feed (e.g. an OpenPhish or PhishTank export)
+# to measure real-world accuracy. See the README.
+http://paypa1.com/login
+http://paypal.com.secure-login.xyz/signin
+http://account-verify.paypal.com.account-security.top/
+http://g00gle-mail.com/auth
+http://micros0ft-office365.com/login
+http://arnazon-security.com/verify
+http://apple.id-locked.support/unlock
+http://netflix-billing-update.info/account
+http://wellsfargo.com.secure-alert.xyz/signon
+http://bankofamerica-alerts.online/login
+http://coinbase-wallet-verify.com/signin
+http://binance.account-check.top/login
+http://dhl-parcel-redelivery.info/track
+http://fedex.shipment-hold.online/pay
+http://chase-online.secure-id.xyz/verify
+http://instagram-copyright-appeal.com/login
+http://192.168.4.11/paypal/login
+http://secure.apple.com@phish-collector.test/verify
+http://xn--pypal-4ve.com/login
+http://linkedin-jobs-verify.account-login.top/

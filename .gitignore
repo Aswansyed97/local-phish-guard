@@ -1,0 +1,5 @@
+node_modules/
+*.log
+.DS_Store
+# Real phishing feeds you download for evaluation — keep them out of the repo.
+data/real-*.txt

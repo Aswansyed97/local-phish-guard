@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Local Phish Guard",
+  "version": "0.1.0",
+  "description": "Detects likely phishing pages using local rules only. No browsing data leaves your browser.",
+  "permissions": ["webNavigation", "webRequest", "storage", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "Phish Guard" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

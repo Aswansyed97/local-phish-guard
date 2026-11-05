@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { width: 300px; margin: 0; font: 14px/1.4 system-ui, sans-serif; }
+    header { padding: 12px 14px; color: #fff; }
+    .ok { background: #2e7d32; }
+    .caution { background: #ed6c02; }
+    .warn { background: #c62828; }
+    h1 { font-size: 15px; margin: 0; }
+    .score { font-size: 12px; opacity: .9; margin-top: 2px; }
+    ul { margin: 10px 14px; padding-left: 18px; }
+    li { margin: 4px 0; }
+    .none { margin: 12px 14px; color: #555; }
+    footer { font-size: 11px; color: #777; padding: 8px 14px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <header id="head" class="ok">
+    <h1 id="title">Checking…</h1>
+    <div class="score" id="score"></div>
+  </header>
+  <ul id="reasons"></ul>
+  <div class="none" id="none" hidden>No phishing signals on this page.</div>
+  <footer>All checks run locally. Nothing about this page is sent anywhere.</footer>
+  <script src="popup.js"></script>
+</body>
+</html>

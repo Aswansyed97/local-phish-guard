@@ -1,0 +1,11 @@
+{
+  "name": "local-phish-guard",
+  "version": "0.1.0",
+  "description": "A local-only browser extension that flags likely phishing pages, with a tested detection core and an honest accuracy evaluation.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test",
+    "eval": "node tools/evaluate.js"
+  }
+}
