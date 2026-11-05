@@ -4,6 +4,16 @@ A browser extension that flags likely phishing pages in real time, using **local
 
 Built as a learning project. The detection logic is a separate, tested module so the exact code that runs in the browser is the code measured in the evaluation.
 
+## What it looks like
+
+A warning banner drops in when a page looks dangerous, listing the reasons:
+
+![Warning banner on a fake login page](docs/screenshots/banner.png)
+
+Clicking the toolbar icon shows the current page's risk score and every signal that fired:
+
+![Popup showing the risk score and reasons](docs/screenshots/popup.png)
+
 ## What it checks
 
 | Signal | Example | Weight |

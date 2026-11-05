@@ -1,29 +1,57 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <style>
-    body { width: 300px; margin: 0; font: 14px/1.4 system-ui, sans-serif; }
-    header { padding: 12px 14px; color: #fff; }
-    .ok { background: #2e7d32; }
-    .caution { background: #ed6c02; }
-    .warn { background: #c62828; }
-    h1 { font-size: 15px; margin: 0; }
-    .score { font-size: 12px; opacity: .9; margin-top: 2px; }
-    ul { margin: 10px 14px; padding-left: 18px; }
-    li { margin: 4px 0; }
-    .none { margin: 12px 14px; color: #555; }
-    footer { font-size: 11px; color: #777; padding: 8px 14px; border-top: 1px solid #eee; }
+    :root {
+      --ok: #2e7d32; --ok-bg: #e8f5e9;
+      --caution: #ed6c02; --caution-bg: #fff4e5;
+      --warn: #c62828; --warn-bg: #fdecea;
+      --ink: #1b1b1f; --muted: #6b7280; --line: #eceef2;
+    }
+    * { box-sizing: border-box; }
+    body { width: 320px; margin: 0; font: 14px/1.45 system-ui, -apple-system, sans-serif; color: var(--ink); background: #fff; }
+
+    header { padding: 16px; color: #fff; display: flex; align-items: center; gap: 12px; }
+    header.ok { background: var(--ok); }
+    header.caution { background: var(--caution); }
+    header.warn { background: var(--warn); }
+    .badge { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.18);
+             display: flex; align-items: center; justify-content: center; font-size: 22px; flex: none; }
+    .verdict { font-size: 16px; font-weight: 650; }
+    .sub { font-size: 12px; opacity: .92; margin-top: 1px; }
+
+    .meter { height: 6px; background: var(--line); }
+    .meter > span { display: block; height: 100%; }
+    .meter.ok > span { background: var(--ok); }
+    .meter.caution > span { background: var(--caution); }
+    .meter.warn > span { background: var(--warn); }
+
+    .reasons { padding: 6px 0; }
+    .reason { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+    .reason:last-child { border-bottom: 0; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; }
+    .dot.hi { background: var(--warn); } .dot.mid { background: var(--caution); } .dot.lo { background: var(--muted); }
+    .reason .pts { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+    .none { padding: 18px 16px; color: var(--muted); }
+
+    footer { font-size: 11px; color: var(--muted); padding: 10px 16px; border-top: 1px solid var(--line);
+             display: flex; align-items: center; gap: 6px; }
+    .lock { font-size: 12px; }
   </style>
 </head>
 <body>
   <header id="head" class="ok">
-    <h1 id="title">Checking…</h1>
-    <div class="score" id="score"></div>
+    <div class="badge" id="face">✓</div>
+    <div>
+      <div class="verdict" id="title">Checking…</div>
+      <div class="sub" id="score"></div>
+    </div>
   </header>
-  <ul id="reasons"></ul>
+  <div class="meter ok" id="meter"><span id="bar" style="width:0%"></span></div>
+  <div class="reasons" id="reasons"></div>
   <div class="none" id="none" hidden>No phishing signals on this page.</div>
-  <footer>All checks run locally. Nothing about this page is sent anywhere.</footer>
+  <footer><span class="lock">🔒</span> All checks run locally. Nothing about this page is sent anywhere.</footer>
   <script src="popup.js"></script>
 </body>
 </html>
