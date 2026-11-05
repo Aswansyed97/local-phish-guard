@@ -1,6 +1,5 @@
-// Content script. Runs inside each page. It only gathers facts about login
-// forms and reports them to the background worker. It makes no decisions and
-// sends nothing to the network. Classic script (no imports) by design.
+// Runs inside each page. All it does is look at the login forms and hand that
+// to the background worker. It decides nothing and talks to no server.
 (function () {
   function collectForms() {
     const forms = [...document.forms].map((f) => {

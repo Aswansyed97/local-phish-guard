@@ -1,16 +1,16 @@
 # Local Phish Guard
 
-A browser extension that flags likely phishing pages in real time, using **local rules only**. No browsing data ever leaves the browser — there are no network calls in the code, and a test enforces that claim.
+A browser extension that flags likely phishing pages while you browse. Every check runs on your machine. The code makes no network calls, and there's a test that keeps it that way.
 
-Built as a learning project. The detection logic is a separate, tested module so the exact code that runs in the browser is the code measured in the evaluation.
+I built this to learn how phishing detection and browser extensions actually work. The detection rules sit in one small module with no browser code in it, so the rules I ship are the same ones the tests and the accuracy script run.
 
 ## What it looks like
 
-A warning banner drops in when a page looks dangerous, listing the reasons:
+When a page looks dangerous, a banner drops in at the top and says why:
 
 ![Warning banner on a fake login page](docs/screenshots/banner.png)
 
-Clicking the toolbar icon shows the current page's risk score and every signal that fired:
+Click the toolbar icon for the page's risk score and the signals that fired:
 
 ![Popup showing the risk score and reasons](docs/screenshots/popup.png)
 
@@ -20,69 +20,69 @@ Clicking the toolbar icon shows the current page's risk score and every signal t
 |---|---|---|
 | Domain spells a brand but isn't the brand | `paypa1.com`, `g00gle-mail.com` | high |
 | Brand name on an unrelated domain | `paypal.com.secure-login.xyz` | high |
-| Password form posts to a different domain | login page sends your password elsewhere | high |
-| Password form over plain HTTP | — | high |
-| Redirect chain across several domains / via a shortener | `bit.ly → … → paypa1.com` | medium |
-| Raw IP host, `@` in URL, punycode, many subdomains, very long URL | `http://192.168.0.5/login` | low |
+| Password form posts to a different domain | the login page sends your password somewhere else | high |
+| Password form over plain HTTP | a login with no HTTPS | high |
+| Redirect chain across several domains, or through a shortener | `bit.ly`, then two more hops, then `paypa1.com` | medium |
+| Raw IP host, `@` in the URL, punycode, lots of subdomains, very long URL | `http://192.168.0.5/login` | low |
 
-Signals are summed into a 0–100 score: under 30 is silent, 30–59 shows a caution badge, 60+ shows an on-page warning with the reasons.
+Each signal adds points to a score from 0 to 100. Below 30 it stays quiet. From 30 to 59 it puts a caution badge on the icon. At 60 or more it shows the banner.
 
-## Project layout
+## Layout
 
 ```
-extension/          the loadable extension (load this folder in the browser)
-  core/detect.js    detection rules — pure functions, no browser APIs
-  core/brands.js    known brands and their real domains
-  background.js     tracks redirects, runs the core, sets the badge
-  content.js        reads login forms on the page; shows the warning banner
-  popup.js/.html    shows the current page's verdict
-tests/              unit tests for the core (node --test)
-tools/evaluate.js   accuracy evaluation over URL lists
-data/               sample URL lists for the evaluation
-test-pages/         local HTML pages to try the extension safely
+extension/          the extension itself (load this folder in the browser)
+  core/detect.js    the detection rules, plain functions, no browser code
+  core/brands.js    brands and their real domains
+  background.js     tracks redirects, runs the rules, sets the badge
+  content.js        reads login forms, draws the warning banner
+  popup.js/.html    the toolbar popup
+tests/              tests for the rules (node --test)
+tools/evaluate.js   accuracy check over URL lists
+data/               sample URL lists for the check
+test-pages/         local pages to try it on safely
 ```
 
-## Run the tests
+## Running the tests
 
 ```bash
 npm test
 ```
 
-## Run the accuracy evaluation
+## Checking the accuracy
 
 ```bash
 npm run eval
 ```
 
-Current result on the bundled **synthetic** sample lists:
+Right now, against the sample lists:
 
 ```
 Detection rate:  16/20  (80.0%)
 False positives: 0/20   (0.0%)
 ```
 
-To measure real-world accuracy, replace the sample files with a real feed (for example an OpenPhish or PhishTank export) and a list of popular legitimate domains:
+Those lists are synthetic. I wrote them by hand to exercise the rules, so treat the numbers as a demo. For real ones, swap in a real feed (an OpenPhish or PhishTank export) and a list of common legit domains:
 
 ```bash
 node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
 ```
 
-## Load it in a browser (Chromium / Brave / Chrome)
+## Loading it in Brave or Chrome
 
-1. Open `brave://extensions` (or `chrome://extensions`).
-2. Turn on **Developer mode** (top right).
-3. Click **Load unpacked** and select the `extension/` folder.
-4. Open `test-pages/fake-login.html` — you should see a red warning banner.
-5. Open `test-pages/safe-login.html` — no warning.
+1. Open `brave://extensions` or `chrome://extensions`.
+2. Turn on Developer mode (top right).
+3. Click Load unpacked and pick the `extension/` folder.
+4. Open `test-pages/fake-login.html`. You should get a red banner.
+5. Open `test-pages/safe-login.html`. Nothing should happen.
 
-## Limitations (honest list)
+## What it doesn't do yet
 
-- **The accuracy numbers above use synthetic sample data**, not a live feed. The method is real; the dataset is illustrative until a real feed is plugged in.
-- **The evaluation is URL-only.** Redirect-chain and form signals need a live page, so they raise accuracy in the browser but are not counted in `npm run eval`.
-- **Known misses** (shown by the evaluation): a brand name that appears only in the URL *path* (`192.168.0.5/paypal/login`), the `user@host` trick, punycode domains (not decoded yet), and very short brand names like `dhl` (deliberately not substring-matched, to avoid false positives).
-- **Domain parsing uses a short built-in suffix list**, not the full Public Suffix List, so a few uncommon multi-part TLDs may be grouped wrong.
-- Rule weights are hand-set, not learned. A small trained model is planned as a follow-up ("approach B").
+- The accuracy numbers come from the synthetic samples, not a live feed. The approach is real, the data is a placeholder until I wire a feed in.
+- The accuracy script only sees the URL. The redirect and form checks need a live page, so they help in the browser but don't count in `npm run eval`.
+- It misses a few cases the sample run already shows: a brand name sitting only in the URL path (`192.168.0.5/paypal/login`), the `user@host` trick, punycode domains (I don't decode those yet), and short brand names like `dhl` that I skip on purpose so they don't match inside ordinary words.
+- Domain parsing uses a short built-in suffix list instead of the full Public Suffix List, so a few uncommon multi-part TLDs get grouped wrong.
+- The weights are hand-set, not trained. A small trained model is the next thing I want to try.
 
 ## Privacy
 
-Every check runs in the browser against local data. The code makes no `fetch`/`XMLHttpRequest` calls and contacts no server.
+Everything runs in the browser against local data. No `fetch`, no `XMLHttpRequest`, no server.

@@ -1,6 +1,5 @@
-// Background service worker. Tracks each tab's redirect chain, receives page
-// signals from the content script, runs the detection core, and stores a verdict
-// per tab. ES module so it can import the shared core.
+// Background worker: keeps each tab's redirect chain, takes the form info the
+// content script sends, scores it, and remembers a verdict per tab.
 import { analyze, scoreToLevel } from "./core/detect.js";
 
 const redirectChains = {}; // tabId -> [url, url, ...]

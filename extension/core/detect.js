@@ -1,10 +1,9 @@
-// Detection core. Pure functions, no browser APIs, so it runs in Node tests,
-// in the evaluation tool, and inside the extension's background worker unchanged.
+// The detection rules. No browser APIs here, so the tests and the eval script
+// run the same code the extension does.
 import { BRANDS, SHORTENERS } from "./brands.js";
 
-// A small set of multi-part public suffixes so "bbc.co.uk" -> "bbc.co.uk",
-// not "co.uk". This is a shortcut, not the full Public Suffix List; the README
-// lists it as a known limitation.
+// Enough multi-part suffixes to get bbc.co.uk right instead of reading it as
+// co.uk. Not the full Public Suffix List (see the README).
 const MULTI_SUFFIX = new Set([
   "co.uk", "org.uk", "gov.uk", "ac.uk", "com.au", "net.au", "org.au",
   "co.jp", "co.nz", "co.in", "com.br", "co.za", "com.mx", "com.sg", "com.tr",
@@ -20,8 +19,8 @@ export function registrableDomain(hostname) {
   return last2;
 }
 
-// Fold common look-alike tricks down to plain ASCII so "paypa1" and the
-// Cyrillic-"a" "pаypal" both normalise toward "paypal".
+// Fold the usual look-alike tricks back to plain ascii, so paypa1 and a
+// Cyrillic-a pаypal both land near paypal.
 export function normalizeConfusables(s) {
   return s
     .toLowerCase()
@@ -71,8 +70,8 @@ export function brandSignals(hostname) {
     if (isLegit) return []; // genuine brand site: trust it, emit nothing.
 
     for (const token of brand.tokens) {
-      // The main label imitates the brand name but the site is not the brand.
-      // A confirmed brand look-alike is high-confidence phishing on its own.
+      // A domain whose main label spells a brand, on a site that isn't the
+      // brand, is about as clear as phishing gets, so it scores high alone.
       if (normSld === token) {
         out.push(sig("lookalike-exact", `Domain name spells "${brand.name}" but this is not an official ${brand.name} site`, 70));
         return out;
