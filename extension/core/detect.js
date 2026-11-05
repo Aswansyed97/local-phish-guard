@@ -96,6 +96,12 @@ export function brandSignals(hostname) {
   return out;
 }
 
+// True when a string contains a known brand name, after folding look-alikes.
+function hasBrandToken(s) {
+  const n = normalizeConfusables(s);
+  return BRANDS.some((b) => b.tokens.some((t) => n.includes(t)));
+}
+
 // URL-shape checks that do not need a brand.
 export function structuralSignals(urlString) {
   const out = [];
@@ -105,6 +111,12 @@ export function structuralSignals(urlString) {
 
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) out.push(sig("ip-host", "Address is a raw IP, not a domain name", 35));
   if (u.href.includes("@")) out.push(sig("at-symbol", 'URL contains "@", which can hide the real destination', 35));
+  // The "user@host" trick: the part before @ is a decoy and the real host is
+  // after it. Flag it harder when the decoy looks like a domain or a brand,
+  // which pushes the classic secure.apple.com@evil.test case over the line.
+  if (u.username && (u.username.includes(".") || hasBrandToken(u.username))) {
+    out.push(sig("userinfo-decoy", `The text before "@" looks like a real address, but the site is actually ${host}`, 30));
+  }
   if (host.split(".").some((l) => l.startsWith("xn--"))) out.push(sig("punycode", "Domain uses punycode, often used to fake letters", 30));
   const subCount = host.split(".").length - 2;
   if (subCount >= 4) out.push(sig("many-subdomains", "Unusually many subdomains", 10));

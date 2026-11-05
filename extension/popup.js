@@ -56,11 +56,19 @@ function render(verdict) {
   }
 }
 
-if (typeof chrome !== "undefined" && chrome.tabs && chrome.runtime) {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+if (typeof chrome !== "undefined" && chrome.tabs && chrome.storage) {
+  // Read the verdict straight from storage.session. It survives a suspended
+  // worker, so the popup still has data after the worker has been idle.
+  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     const tab = tabs[0];
     if (!tab) return render(null);
-    chrome.runtime.sendMessage({ type: "GET_VERDICT", tabId: tab.id }, render);
+    const k = "verdict:" + tab.id;
+    try {
+      const stored = await chrome.storage.session.get(k);
+      render(stored[k] || null);
+    } catch {
+      render(null);
+    }
   });
 } else {
   // Standalone preview (opened as a plain file, not inside the extension).

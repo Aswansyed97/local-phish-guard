@@ -1,5 +1,7 @@
 # Local Phish Guard
 
+![tests](https://github.com/Aswansyed97/local-phish-guard/actions/workflows/ci.yml/badge.svg)
+
 A browser extension that flags likely phishing pages while you browse. Every check runs on your machine. The code makes no network calls, and there's a test that keeps it that way.
 
 I built this to learn how phishing detection and browser extensions actually work. The detection rules sit in one small module with no browser code in it, so the rules I ship are the same ones the tests and the accuracy script run.
@@ -54,14 +56,14 @@ npm test
 npm run eval
 ```
 
-Right now, against the sample lists:
+Right now, against the sample lists (20 phishing URLs, 20 legit URLs):
 
 ```
-Detection rate:  16/20  (80.0%)
+Detection rate:  17/20  (85.0%)
 False positives: 0/20   (0.0%)
 ```
 
-Those lists are synthetic. I wrote them by hand to exercise the rules, so treat the numbers as a demo. For real ones, swap in a real feed (an OpenPhish or PhishTank export) and a list of common legit domains:
+Those lists are synthetic. I wrote them by hand in November 2026 to exercise the rules, so treat the numbers as a demo of the method, not a prediction of real-world performance. For real numbers, swap in a real feed (an OpenPhish or PhishTank export) and a list of common legit domains, and note the date you collected it:
 
 ```bash
 node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
@@ -79,9 +81,21 @@ node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
 
 - The accuracy numbers come from the synthetic samples, not a live feed. The approach is real, the data is a placeholder until I wire a feed in.
 - The accuracy script only sees the URL. The redirect and form checks need a live page, so they help in the browser but don't count in `npm run eval`.
-- It misses a few cases the sample run already shows: a brand name sitting only in the URL path (`192.168.0.5/paypal/login`), the `user@host` trick, punycode domains (I don't decode those yet), and short brand names like `dhl` that I skip on purpose so they don't match inside ordinary words.
+- It still misses a couple of cases the sample run shows: a brand name sitting only in the URL path (`192.168.0.5/paypal/login`) and punycode domains, which I flag but don't decode yet. I also skip brand names shorter than four letters, like `dhl`, on purpose so they don't match inside ordinary words.
+- A brand word in the path of a real brand site (say `amazon.com/paypal-vs-stripe`) is intentionally not flagged, to avoid false positives. There's a test for that.
 - Domain parsing uses a short built-in suffix list instead of the full Public Suffix List, so a few uncommon multi-part TLDs get grouped wrong.
 - The weights are hand-set, not trained. A small trained model is the next thing I want to try.
+
+## Requirements and support
+
+- Works in Chromium browsers: Brave, Chrome, Edge. Not Firefox (it uses Manifest V3 service workers).
+- Running the tests needs Node 18 or newer. The extension itself has no dependencies.
+
+## Permissions, and why
+
+- `webNavigation`, `webRequest` — to see redirect hops before a page loads.
+- `storage` — to keep the current page's verdict in `chrome.storage.session` so the popup still works after the background worker sleeps.
+- host access is limited to `http://*/*` and `https://*/*`, and the content script runs only on those. No access to `file://` pages or browser internals.
 
 ## Privacy
 

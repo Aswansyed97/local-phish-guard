@@ -91,3 +91,27 @@ test("scoreToLevel thresholds", () => {
   assert.equal(scoreToLevel(30), "caution");
   assert.equal(scoreToLevel(60), "warn");
 });
+
+// --- known gaps: lock in intended behaviour -------------------------------
+
+test("user@host decoy pushes the URL to a warning", () => {
+  const v = analyzeUrl("http://secure.apple.com@phish-collector.test/verify");
+  assert.ok(v.signals.some((s) => s.id === "userinfo-decoy"));
+  assert.equal(v.level, "warn");
+});
+
+test("a brand word in the PATH of a real brand site is not flagged (no false positive)", () => {
+  // amazon.com is legitimate; a brand word later in the path must not trip it.
+  const v = analyzeUrl("https://www.amazon.com/paypal-vs-stripe-comparison");
+  assert.equal(v.level, "ok");
+});
+
+test("punycode domains are flagged, even though we do not decode them yet", () => {
+  const v = analyzeUrl("http://xn--pypal-4ve.com/login");
+  assert.ok(v.signals.some((s) => s.id === "punycode"));
+});
+
+test("multi-part suffixes resolve to the right registrable domain", () => {
+  assert.equal(registrableDomain("mail.google.co.uk"), "google.co.uk");
+  assert.equal(registrableDomain("a.b.example.com.au"), "example.com.au");
+});
