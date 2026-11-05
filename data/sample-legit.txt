@@ -20,3 +20,19 @@ https://www.dhl.com/us-en/home/tracking.html
 https://www.fedex.com/en-us/home.html
 https://www.amazon.com/
 https://github.com/login
+# Ordinary sites with no brand sign-in, to check the rules stay quiet on normal browsing.
+https://en.wikipedia.org/wiki/Phishing
+https://www.reddit.com/r/netsec/
+https://stackoverflow.com/questions
+https://www.nytimes.com/section/technology
+https://www.bbc.co.uk/news
+https://www.cloudflare.com/
+https://developer.mozilla.org/en-US/
+https://www.python.org/downloads/
+https://nodejs.org/en/
+https://www.ebay.com/deals
+https://www.etsy.com/
+https://www.spotify.com/us/
+https://www.dropbox.com/home
+https://zoom.us/join
+https://www.shopify.com/pricing

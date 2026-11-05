@@ -4,7 +4,21 @@
 
 A browser extension that flags likely phishing pages while you browse. Every check runs on your machine. The code makes no network calls, and there's a test that keeps it that way.
 
+**What it does:** looks at the page URL, the redirect hops that led there, and any password form, then scores the page on local rules and warns you if it looks like a credential-stealing attempt.
+
+**What it doesn't do:** it doesn't promise a site is safe, it doesn't block navigation (the banner warns, you decide), and it doesn't replace your browser's own protection. It's a learning project, not a security product.
+
+**Try it in two minutes:** load the `extension/` folder at `brave://extensions` (Developer mode on, then Load unpacked), then open `test-pages/fake-login.html` for a warning and `test-pages/safe-login.html` for a clean page. Run `npm test` for the rule tests.
+
 I built this to learn how phishing detection and browser extensions actually work. The detection rules sit in one small module with no browser code in it, so the rules I ship are the same ones the tests and the accuracy script run.
+
+## How it fits together
+
+Three small parts hand work to each other:
+
+- `extension/content.js` runs on the page and reads its login forms.
+- `extension/background.js` adds the redirect history and asks the rules for a verdict, then sets the badge and fires the banner.
+- `extension/core/detect.js` is the rules themselves: plain functions, no browser code, so the tests and the accuracy script run exactly what ships.
 
 ## What it looks like
 
@@ -56,11 +70,11 @@ npm test
 npm run eval
 ```
 
-Right now, against the sample lists (20 phishing URLs, 20 legit URLs):
+Right now, against the sample lists (20 phishing URLs, 35 legit URLs including ordinary non-login sites):
 
 ```
 Detection rate:  17/20  (85.0%)
-False positives: 0/20   (0.0%)
+False positives: 0/35   (0.0%)
 ```
 
 Those lists are synthetic. I wrote them by hand in November 2026 to exercise the rules, so treat the numbers as a demo of the method, not a prediction of real-world performance. For real numbers, swap in a real feed (an OpenPhish or PhishTank export) and a list of common legit domains, and note the date you collected it:
