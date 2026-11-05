@@ -49,7 +49,8 @@
     });
 
     const head = document.createElement("div");
-    Object.assign(head.style, { display: "flex", alignItems: "center", gap: "10px", fontWeight: "700" });
+    // Leave room on the right so a long title never runs under the Dismiss button.
+    Object.assign(head.style, { display: "flex", alignItems: "center", gap: "10px", fontWeight: "700", paddingRight: "84px" });
     const mark = document.createElement("span");
     mark.textContent = "⚠️";
     mark.style.fontSize = "18px";
