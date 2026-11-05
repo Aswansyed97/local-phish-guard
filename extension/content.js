@@ -55,7 +55,7 @@
     mark.textContent = "⚠️";
     mark.style.fontSize = "18px";
     const title = document.createElement("span");
-    title.textContent = `Phish Guard — likely phishing (risk ${verdict.score}/100)`;
+    title.textContent = `PhishLens — likely phishing (risk ${verdict.score}/100)`;
     head.append(mark, title);
     bar.appendChild(head);
 

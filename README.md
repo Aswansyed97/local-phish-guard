@@ -1,4 +1,6 @@
-# Local Phish Guard
+# PhishLens
+
+Local-first phishing detection for Chromium browsers.
 
 ![tests](https://github.com/Aswansyed97/local-phish-guard/actions/workflows/ci.yml/badge.svg)
 

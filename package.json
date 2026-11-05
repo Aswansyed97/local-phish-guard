@@ -1,7 +1,7 @@
 {
-  "name": "local-phish-guard",
+  "name": "phishlens",
   "version": "0.1.0",
-  "description": "A local-only browser extension that flags likely phishing pages, with a tested detection core and an honest accuracy evaluation.",
+  "description": "PhishLens: a local-first phishing-detection browser extension with an explainable, tested rules engine.",
   "type": "module",
   "private": true,
   "scripts": {

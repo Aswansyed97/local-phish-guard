@@ -41,7 +41,7 @@ for (const u of legit) {
 
 const pct = (n, d) => (d ? ((100 * n) / d).toFixed(1) : "0.0");
 
-console.log("\n=== Local Phish Guard — URL-only evaluation (threshold: score >= 60) ===\n");
+console.log("\n=== PhishLens — URL-only evaluation (threshold: score >= 60) ===\n");
 console.log(`Dataset:         ${phishPath === undefined ? "" : ""}${String(phishPath).includes("sample") ? "bundled synthetic sample (hand-written, not a live feed)" : "custom lists"}`);
 console.log(`Phishing URLs:   ${phishing.length}`);
 console.log(`Legit URLs:      ${legit.length}\n`);
