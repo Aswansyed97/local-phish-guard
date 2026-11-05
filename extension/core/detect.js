@@ -113,6 +113,8 @@ export function structuralSignals(urlString) {
   return out;
 }
 
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+
 // Signals that depend on the login form, from the content script.
 export function formSignals(pageUrl, forms = []) {
   const out = [];
@@ -120,16 +122,19 @@ export function formSignals(pageUrl, forms = []) {
   try { pageReg = registrableDomain(new URL(pageUrl).hostname); } catch { /* ignore */ }
   for (const f of forms) {
     if (!f.hasPassword) continue;
-    let actionReg = pageReg, actionProto = "https:";
+    let actionReg = pageReg, actionProto = "https:", actionHost = "";
     try {
       const a = new URL(f.action, pageUrl);
       actionReg = registrableDomain(a.hostname);
       actionProto = a.protocol;
+      actionHost = a.hostname;
     } catch { /* ignore */ }
     if (actionReg && actionReg !== pageReg) {
       out.push(sig("form-cross-domain", `A password form sends your login to a different site (${actionReg})`, 50));
     }
-    if (actionProto === "http:") {
+    // Plain-HTTP password form, except on a local dev address (loopback), which
+    // is normal during development and would otherwise be a false positive.
+    if (actionProto === "http:" && !LOOPBACK.has(actionHost)) {
       out.push(sig("form-http", "A password form sends data over unencrypted HTTP", 40));
     }
   }
