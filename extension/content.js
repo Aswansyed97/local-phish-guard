@@ -35,62 +35,68 @@
   // Build the warning banner with safe DOM methods only. Reason text comes from
   // the core but can contain a domain taken from the page, so it is inserted as
   // text, never as HTML, to avoid any injection.
+  // All banner styling lives inside a Shadow DOM so the host page's CSS (for
+  // example a `button { width: 100% }` rule) can't reach in and break it.
+  const BANNER_CSS = `
+    .bar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 2147483647; box-sizing: border-box; width: calc(100vw - 28px); max-width: 560px;
+      background: #b3261e; color: #fff; font: 14px/1.5 system-ui,-apple-system,sans-serif;
+      padding: 14px 16px 16px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.28); }
+    .head { display: flex; align-items: flex-start; gap: 10px; }
+    .ic { font-size: 18px; flex: 0 0 auto; }
+    .title { flex: 1 1 auto; min-width: 0; font-weight: 700; }
+    .x { flex: 0 0 auto; white-space: nowrap; width: auto; background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.6); color: #fff; border-radius: 6px;
+      padding: 3px 10px; cursor: pointer; font: 13px system-ui,sans-serif; }
+    .sub { opacity: .92; margin: 8px 0 4px; font-size: 13px; }
+    ul { margin: 0; padding-left: 22px; }
+    li { margin: 3px 0; }
+  `;
+
   function showBanner(verdict) {
     if (document.getElementById("phish-guard-banner")) return;
+    const host = document.createElement("div");
+    host.id = "phish-guard-banner";
+    host.setAttribute("style", "all: initial;");
+    const root = host.attachShadow({ mode: "open" });
+
+    const style = document.createElement("style");
+    style.textContent = BANNER_CSS;
+    root.appendChild(style);
+
     const bar = document.createElement("div");
-    bar.id = "phish-guard-banner";
-    Object.assign(bar.style, {
-      position: "fixed", top: "14px", left: "50%", transform: "translateX(-50%)",
-      zIndex: "2147483647", boxSizing: "border-box",
-      width: "calc(100% - 28px)", maxWidth: "560px",
-      background: "#b3261e", color: "#fff",
-      font: "14px/1.5 system-ui,-apple-system,sans-serif",
-      padding: "14px 16px 16px", borderRadius: "12px",
-      boxShadow: "0 10px 30px rgba(0,0,0,.28)",
-    });
+    bar.className = "bar";
 
-    // Header is a flex row: icon, title (takes the slack and wraps), then the
-    // Dismiss button. No absolute positioning, so they can never overlap.
     const head = document.createElement("div");
-    Object.assign(head.style, { display: "flex", alignItems: "flex-start", gap: "10px" });
-
-    const mark = document.createElement("span");
-    mark.textContent = "⚠️";
-    Object.assign(mark.style, { fontSize: "18px", flex: "0 0 auto", lineHeight: "1.3" });
-
+    head.className = "head";
+    const ic = document.createElement("span");
+    ic.className = "ic";
+    ic.textContent = "⚠️";
     const title = document.createElement("span");
+    title.className = "title";
     title.textContent = `PhishLens — likely phishing (risk ${verdict.score}/100)`;
-    Object.assign(title.style, { flex: "1 1 auto", minWidth: "0", fontWeight: "700", lineHeight: "1.3" });
-
     const close = document.createElement("button");
+    close.className = "x";
     close.textContent = "Dismiss";
-    Object.assign(close.style, {
-      flex: "0 0 auto", background: "rgba(255,255,255,.15)",
-      border: "1px solid rgba(255,255,255,.6)", color: "#fff", borderRadius: "6px",
-      padding: "3px 10px", cursor: "pointer", font: "13px system-ui,sans-serif",
-      whiteSpace: "nowrap",
-    });
-    close.addEventListener("click", () => bar.remove());
-
-    head.append(mark, title, close);
+    close.addEventListener("click", () => host.remove());
+    head.append(ic, title, close);
     bar.appendChild(head);
 
     const sub = document.createElement("div");
+    sub.className = "sub";
     sub.textContent = "This page shows signs of a credential-stealing attempt:";
-    Object.assign(sub.style, { opacity: ".92", margin: "8px 0 4px", fontSize: "13px" });
     bar.appendChild(sub);
 
     const list = document.createElement("ul");
-    Object.assign(list.style, { margin: "0", paddingLeft: "22px" });
     for (const s of verdict.signals) {
       const li = document.createElement("li");
       li.textContent = s.label; // text, never HTML
-      li.style.margin = "3px 0";
       list.appendChild(li);
     }
     bar.appendChild(list);
 
-    document.documentElement.appendChild(bar);
+    root.appendChild(bar);
+    document.documentElement.appendChild(host);
   }
 
   chrome.runtime.onMessage.addListener((msg) => {
