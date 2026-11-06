@@ -41,22 +41,38 @@
     bar.id = "phish-guard-banner";
     Object.assign(bar.style, {
       position: "fixed", top: "14px", left: "50%", transform: "translateX(-50%)",
-      zIndex: "2147483647", width: "min(560px, calc(100% - 28px))",
+      zIndex: "2147483647", boxSizing: "border-box",
+      width: "calc(100% - 28px)", maxWidth: "560px",
       background: "#b3261e", color: "#fff",
       font: "14px/1.5 system-ui,-apple-system,sans-serif",
       padding: "14px 16px 16px", borderRadius: "12px",
       boxShadow: "0 10px 30px rgba(0,0,0,.28)",
     });
 
+    // Header is a flex row: icon, title (takes the slack and wraps), then the
+    // Dismiss button. No absolute positioning, so they can never overlap.
     const head = document.createElement("div");
-    // Leave room on the right so a long title never runs under the Dismiss button.
-    Object.assign(head.style, { display: "flex", alignItems: "center", gap: "10px", fontWeight: "700", paddingRight: "84px" });
+    Object.assign(head.style, { display: "flex", alignItems: "flex-start", gap: "10px" });
+
     const mark = document.createElement("span");
     mark.textContent = "⚠️";
-    mark.style.fontSize = "18px";
+    Object.assign(mark.style, { fontSize: "18px", flex: "0 0 auto", lineHeight: "1.3" });
+
     const title = document.createElement("span");
     title.textContent = `PhishLens — likely phishing (risk ${verdict.score}/100)`;
-    head.append(mark, title);
+    Object.assign(title.style, { flex: "1 1 auto", minWidth: "0", fontWeight: "700", lineHeight: "1.3" });
+
+    const close = document.createElement("button");
+    close.textContent = "Dismiss";
+    Object.assign(close.style, {
+      flex: "0 0 auto", background: "rgba(255,255,255,.15)",
+      border: "1px solid rgba(255,255,255,.6)", color: "#fff", borderRadius: "6px",
+      padding: "3px 10px", cursor: "pointer", font: "13px system-ui,sans-serif",
+      whiteSpace: "nowrap",
+    });
+    close.addEventListener("click", () => bar.remove());
+
+    head.append(mark, title, close);
     bar.appendChild(head);
 
     const sub = document.createElement("div");
@@ -73,16 +89,6 @@
       list.appendChild(li);
     }
     bar.appendChild(list);
-
-    const close = document.createElement("button");
-    close.textContent = "Dismiss";
-    Object.assign(close.style, {
-      position: "absolute", top: "12px", right: "14px", background: "rgba(255,255,255,.15)",
-      border: "1px solid rgba(255,255,255,.6)", color: "#fff", borderRadius: "6px",
-      padding: "3px 10px", cursor: "pointer", font: "13px system-ui,sans-serif",
-    });
-    close.addEventListener("click", () => bar.remove());
-    bar.appendChild(close);
 
     document.documentElement.appendChild(bar);
   }

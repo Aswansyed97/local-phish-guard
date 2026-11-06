@@ -7,23 +7,26 @@
     html, body { margin: 0; }
     .stage { width: 720px; height: 380px; background: #f2f4f8; position: relative;
              font: 16px system-ui, -apple-system, sans-serif; overflow: hidden; }
-    .card { position: absolute; left: 50%; top: 120px; transform: translateX(-50%);
+    .card { position: absolute; left: 50%; top: 130px; transform: translateX(-50%);
             width: 320px; background: #fff; padding: 24px; border-radius: 10px;
             box-shadow: 0 2px 12px rgba(0,0,0,.08); opacity: .55; }
     .card h2 { margin: 0 0 10px; font-size: 18px; }
     .card input { width: 100%; padding: 10px; margin: 6px 0; box-sizing: border-box;
                   border: 1px solid #ddd; border-radius: 6px; }
     .card button { width: 100%; padding: 10px; background: #0b5; color: #fff; border: 0; border-radius: 6px; }
-    /* Faithful copy of the live warning banner for the README screenshot. */
+    /* Faithful copy of the live banner: flex header, Dismiss as a flex item. */
     .pg { position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-          width: 560px; background: #b3261e; color: #fff; font-size: 14px; line-height: 1.5;
+          box-sizing: border-box; width: 560px; max-width: calc(100% - 28px);
+          background: #b3261e; color: #fff; font-size: 14px; line-height: 1.5;
           padding: 14px 16px 16px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.28); }
-    .pg .h { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .pg .h { display: flex; align-items: flex-start; gap: 10px; }
+    .pg .h .ic { font-size: 18px; flex: 0 0 auto; }
+    .pg .h .t { flex: 1 1 auto; min-width: 0; font-weight: 700; }
+    .pg .h .x { flex: 0 0 auto; white-space: nowrap; background: rgba(255,255,255,.15);
+                border: 1px solid rgba(255,255,255,.6); color: #fff; border-radius: 6px; padding: 3px 10px; }
     .pg .sub { opacity: .92; margin: 8px 0 4px; font-size: 13px; }
     .pg ul { margin: 0; padding-left: 22px; }
     .pg li { margin: 3px 0; }
-    .pg .x { position: absolute; top: 12px; right: 14px; background: rgba(255,255,255,.15);
-             border: 1px solid rgba(255,255,255,.6); color: #fff; border-radius: 6px; padding: 3px 10px; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -35,13 +38,16 @@
       <button>Sign in</button>
     </div>
     <div class="pg">
-      <div class="h"><span style="font-size:18px">⚠️</span><span>PhishLens — likely phishing (risk 90/100)</span></div>
+      <div class="h">
+        <span class="ic">⚠️</span>
+        <span class="t">PhishLens — likely phishing (risk 90/100)</span>
+        <span class="x">Dismiss</span>
+      </div>
       <div class="sub">This page shows signs of a credential-stealing attempt:</div>
       <ul>
         <li>A password form sends your login to a different site (evil.test)</li>
         <li>A password form sends data over unencrypted HTTP</li>
       </ul>
-      <span class="x">Dismiss</span>
     </div>
   </div>
 </body>
