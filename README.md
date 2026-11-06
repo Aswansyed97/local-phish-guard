@@ -116,3 +116,13 @@ node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
 ## Privacy
 
 Everything runs in the browser against local data. No `fetch`, no `XMLHttpRequest`, no server.
+
+## What I built, learned, and would change
+
+**Built.** A Chromium extension that scores pages for phishing on local rules: brand look-alikes, brand names on unrelated domains, cross-domain and plain-HTTP password forms, suspicious redirect chains, and URL-shape red flags. The rules live in one module with no browser code, so the tests and the accuracy script run exactly what ships. The verdict is kept in `chrome.storage.session` so the popup survives the service worker going to sleep, which is the part of Manifest V3 that trips people up.
+
+**Learned.** How Manifest V3 pulls an extension apart into a content script, a background worker, and a popup, and why that worker can restart under you. How phishing actually hides: character swaps like `paypa1`, a brand name buried in a subdomain, the `user@host` trick. And that the honest part of a detector is the false-positive rate, which is why the legit list is as long as the phishing one.
+
+**Would change next.** Swap the hand-written weights for a small trained model and compare the two honestly. Run it against a real phishing feed for numbers that mean something. Decode punycode so the lookalike check can see through it. Pull in the full Public Suffix List if the short one starts costing accuracy.
+
+This is a local-first phishing-detection prototype with explainable rules and browser-level checks. It is a learning project, not a production anti-phishing engine, and it doesn't block navigation, it warns and leaves the choice to you.
