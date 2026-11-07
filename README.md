@@ -24,7 +24,7 @@ Three small parts hand work to each other:
 
 ## What it looks like
 
-When a page looks dangerous, a banner drops in at the top and says why:
+When a page looks dangerous, a full-screen warning appears over it with the reasons and a way back to safety (it warns, it doesn't block, "Continue anyway" proceeds):
 
 ![Warning banner on a fake login page](docs/screenshots/banner.png)
 
