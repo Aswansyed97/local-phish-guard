@@ -93,6 +93,16 @@ export function decodeLabel(label) {
   return decoded || label;
 }
 
+// True when a label mixes Latin letters with Cyrillic or Greek ones. A real
+// internationalized domain sticks to one script; mixing Latin with look-alike
+// Cyrillic ("pаypal") is the classic homograph spoof.
+export function isMixedScript(label) {
+  const hasLatin = /[a-z]/i.test(label);
+  const hasCyrillic = /[Ѐ-ӿ]/.test(label);
+  const hasGreek = /[Ͱ-Ͽ]/.test(label);
+  return hasLatin && (hasCyrillic || hasGreek);
+}
+
 export function levenshtein(a, b) {
   const m = a.length, n = b.length;
   if (m === 0) return n;
@@ -171,6 +181,7 @@ export function structuralSignals(urlString) {
     out.push(sig("userinfo-decoy", `The text before "@" looks like a real address, but the site is actually ${host}`, 30));
   }
   if (host.split(".").some((l) => l.startsWith("xn--"))) out.push(sig("punycode", "Domain uses punycode, often used to fake letters", 30));
+  if (host.split(".").some((l) => isMixedScript(decodeLabel(l)))) out.push(sig("mixed-script", "Domain mixes Latin with look-alike letters from another alphabet", 40));
   const subCount = host.split(".").length - 2;
   if (subCount >= 4) out.push(sig("many-subdomains", "Unusually many subdomains", 10));
   if (u.href.length > 100) out.push(sig("long-url", "URL is very long", 10));

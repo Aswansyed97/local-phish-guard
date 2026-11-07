@@ -41,7 +41,8 @@ Click the toolbar icon for the page's risk score and the signals that fired:
 | Password form posts to a different domain | the login page sends your password somewhere else | high |
 | Password form over plain HTTP | a login with no HTTPS | high |
 | Redirect chain across several domains, or through a shortener | `bit.ly`, then two more hops, then `paypa1.com` | medium |
-| Raw IP host, `@` in the URL, punycode, lots of subdomains, very long URL | `http://192.168.0.5/login` | low |
+| Homograph domain: punycode decoded, Latin mixed with look-alike Cyrillic/Greek letters | `xn--pypal-4ve.com` decodes to `pаypal` | medium |
+| Raw IP host, `@` in the URL, lots of subdomains, very long URL | `http://192.168.0.5/login` | low |
 
 Each signal adds points to a score from 0 to 100. Below 30 it stays quiet. From 30 to 59 it puts a caution badge on the icon. At 60 or more it shows the banner.
 

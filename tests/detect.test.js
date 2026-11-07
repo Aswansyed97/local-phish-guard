@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  registrableDomain, normalizeConfusables, levenshtein,
+  registrableDomain, normalizeConfusables, levenshtein, isMixedScript,
   brandSignals, structuralSignals, formSignals, redirectSignals,
   analyzeUrl, analyze, scoreToLevel,
 } from "../extension/core/detect.js";
@@ -116,4 +116,16 @@ test("punycode domains are decoded and caught as the brand they imitate", () => 
 test("multi-part suffixes resolve to the right registrable domain", () => {
   assert.equal(registrableDomain("mail.google.co.uk"), "google.co.uk");
   assert.equal(registrableDomain("a.b.example.com.au"), "example.com.au");
+});
+
+test("isMixedScript flags Latin mixed with Cyrillic, not single-script names", () => {
+  assert.equal(isMixedScript("pаypal"), true);  // Cyrillic а
+  assert.equal(isMixedScript("paypal"), false);       // pure Latin
+  assert.equal(isMixedScript("münchen"), false); // Latin plus umlaut is still Latin
+  assert.equal(isMixedScript("мир"), false); // pure Cyrillic
+});
+
+test("a homograph domain with no known brand is still flagged mixed-script", () => {
+  const v = analyzeUrl("http://bаnk-secure.ru/login"); // Cyrillic а, "bank" is not a tracked brand
+  assert.ok(v.signals.some((s) => s.id === "mixed-script"));
 });
