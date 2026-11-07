@@ -106,9 +106,11 @@ test("a brand word in the PATH of a real brand site is not flagged (no false pos
   assert.equal(v.level, "ok");
 });
 
-test("punycode domains are flagged, even though we do not decode them yet", () => {
-  const v = analyzeUrl("http://xn--pypal-4ve.com/login");
+test("punycode domains are decoded and caught as the brand they imitate", () => {
+  const v = analyzeUrl("http://xn--pypal-4ve.com/login"); // decodes to "pаypal"
   assert.ok(v.signals.some((s) => s.id === "punycode"));
+  assert.ok(v.signals.some((s) => s.id.startsWith("lookalike")));
+  assert.equal(v.level, "warn");
 });
 
 test("multi-part suffixes resolve to the right registrable domain", () => {

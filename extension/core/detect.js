@@ -40,6 +40,59 @@ export function normalizeConfusables(s) {
     .replace(/vv/g, "w");
 }
 
+// RFC 3492 punycode decoder, so an `xn--` label can be read as the real
+// Unicode it stands for. That lets the brand check see a look-alike hidden in
+// punycode (xn--pypal-4ve -> "pаypal" -> paypal) instead of missing it.
+function punyAdapt(delta, numPoints, first) {
+  const base = 36, tmin = 1, tmax = 26, skew = 38, damp = 700;
+  delta = first ? Math.floor(delta / damp) : delta >> 1;
+  delta += Math.floor(delta / numPoints);
+  let k = 0;
+  while (delta > ((base - tmin) * tmax) >> 1) { delta = Math.floor(delta / (base - tmin)); k += base; }
+  return k + Math.floor(((base - tmin + 1) * delta) / (delta + skew));
+}
+
+function punyDecode(input) {
+  const base = 36, tmin = 1, tmax = 26, initialBias = 72, initialN = 128;
+  const output = [];
+  let n = initialN, bias = initialBias, i = 0;
+  const lastDash = input.lastIndexOf("-");
+  const basic = lastDash < 0 ? 0 : lastDash;
+  for (let k = 0; k < basic; k++) output.push(input.charCodeAt(k));
+  let ii = basic > 0 ? basic + 1 : 0;
+  while (ii < input.length) {
+    const oldi = i;
+    let w = 1;
+    for (let k = base; ; k += base) {
+      if (ii >= input.length) return null;
+      const c = input.charCodeAt(ii++);
+      let digit;
+      if (c >= 48 && c <= 57) digit = c - 48 + 26;
+      else if (c >= 65 && c <= 90) digit = c - 65;
+      else if (c >= 97 && c <= 122) digit = c - 97;
+      else return null;
+      i += digit * w;
+      const t = k <= bias ? tmin : (k >= bias + tmax ? tmax : k - bias);
+      if (digit < t) break;
+      w *= base - t;
+    }
+    const outLen = output.length + 1;
+    bias = punyAdapt(i - oldi, outLen, oldi === 0);
+    n += Math.floor(i / outLen);
+    i %= outLen;
+    output.splice(i, 0, n);
+    i++;
+  }
+  try { return String.fromCodePoint(...output); } catch { return null; }
+}
+
+// A single hostname label, with any `xn--` punycode decoded to Unicode.
+export function decodeLabel(label) {
+  if (!label.startsWith("xn--")) return label;
+  const decoded = punyDecode(label.slice(4));
+  return decoded || label;
+}
+
 export function levenshtein(a, b) {
   const m = a.length, n = b.length;
   if (m === 0) return n;
@@ -63,7 +116,7 @@ export function brandSignals(hostname) {
   const reg = registrableDomain(hostname);
   const labels = hostname.toLowerCase().split(".").filter(Boolean);
   const sld = reg.split(".")[0] || "";
-  const normSld = normalizeConfusables(sld);
+  const normSld = normalizeConfusables(decodeLabel(sld));
 
   for (const brand of BRANDS) {
     const isLegit = brand.legit.includes(reg);
@@ -84,7 +137,7 @@ export function brandSignals(hostname) {
       // e.g. paypal.com.secure-login.xyz or paypal-login.xyz. Only for tokens of
       // 4+ characters, so short names like "dhl" can't substring-match common words.
       if (token.length >= 4) {
-        const inSubdomain = labels.slice(0, -2).some((l) => normalizeConfusables(l).includes(token));
+        const inSubdomain = labels.slice(0, -2).some((l) => normalizeConfusables(decodeLabel(l)).includes(token));
         const inSld = normSld.includes(token) && normSld !== token;
         if (inSubdomain || inSld) {
           out.push(sig("brand-unrelated", `Uses the name "${brand.name}" on an unrelated domain (${reg})`, 60));

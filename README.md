@@ -75,7 +75,7 @@ npm run eval
 Right now, against the sample lists (20 phishing URLs, 35 legit URLs including ordinary non-login sites):
 
 ```
-Detection rate:  17/20  (85.0%)
+Detection rate:  18/20  (90.0%)
 False positives: 0/35   (0.0%)
 ```
 
@@ -97,7 +97,7 @@ node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
 
 - The accuracy numbers come from the synthetic samples, not a live feed. The approach is real, the data is a placeholder until I wire a feed in.
 - The accuracy script only sees the URL. The redirect and form checks need a live page, so they help in the browser but don't count in `npm run eval`.
-- It still misses a couple of cases the sample run shows: a brand name sitting only in the URL path (`192.168.0.5/paypal/login`) and punycode domains, which I flag but don't decode yet. I also skip brand names shorter than four letters, like `dhl`, on purpose so they don't match inside ordinary words.
+- It still misses two cases the sample run shows: a brand name sitting only in the URL path (`192.168.0.5/paypal/login`), and short brand names like `dhl` that I skip on purpose so they don't match inside ordinary words. Punycode lookalikes (`xn--...`) used to be a miss; they're now decoded and caught.
 - A brand word in the path of a real brand site (say `amazon.com/paypal-vs-stripe`) is intentionally not flagged, to avoid false positives. There's a test for that.
 - Domain parsing uses a short built-in suffix list instead of the full Public Suffix List, so a few uncommon multi-part TLDs get grouped wrong.
 - The weights are hand-set, not trained. A small trained model is the next thing I want to try.
@@ -123,6 +123,6 @@ Everything runs in the browser against local data. No `fetch`, no `XMLHttpReques
 
 **Learned.** How Manifest V3 pulls an extension apart into a content script, a background worker, and a popup, and why that worker can restart under you. How phishing actually hides: character swaps like `paypa1`, a brand name buried in a subdomain, the `user@host` trick. And that the honest part of a detector is the false-positive rate, which is why the legit list is as long as the phishing one.
 
-**Would change next.** Swap the hand-written weights for a small trained model and compare the two honestly. Run it against a real phishing feed for numbers that mean something. Decode punycode so the lookalike check can see through it. Pull in the full Public Suffix List if the short one starts costing accuracy.
+**Would change next.** Swap the hand-written weights for a small trained model and compare the two honestly. Run it against a real phishing feed for numbers that mean something. Pull in the full Public Suffix List if the short one starts costing accuracy.
 
 This is a local-first phishing-detection prototype with explainable rules and browser-level checks. It is a learning project, not a production anti-phishing engine, and it doesn't block navigation, it warns and leaves the choice to you.
