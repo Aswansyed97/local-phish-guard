@@ -129,3 +129,13 @@ test("a homograph domain with no known brand is still flagged mixed-script", () 
   const v = analyzeUrl("http://bаnk-secure.ru/login"); // Cyrillic а, "bank" is not a tracked brand
   assert.ok(v.signals.some((s) => s.id === "mixed-script"));
 });
+
+test("an allowlisted domain is never flagged, even an obvious lookalike", () => {
+  const flagged = analyze({ url: "http://paypa1.com/login" });
+  assert.equal(flagged.level, "warn"); // normally caught
+
+  const trusted = analyze({ url: "http://paypa1.com/login", allowlist: ["paypa1.com"] });
+  assert.equal(trusted.level, "ok");
+  assert.equal(trusted.score, 0);
+  assert.ok(trusted.allowlisted);
+});

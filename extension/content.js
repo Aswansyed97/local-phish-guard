@@ -100,6 +100,11 @@
   }
 
   chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === "SHOW_WARNING") showBanner(msg.verdict);
+    if (msg.type === "SHOW_WARNING") {
+      showBanner(msg.verdict);
+    } else if (msg.type === "REMOVE_WARNING") {
+      const el = document.getElementById("phish-guard-banner");
+      if (el) el.remove();
+    }
   });
 })();

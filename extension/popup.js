@@ -13,6 +13,8 @@ function severity(points) {
   return "lo";
 }
 
+let activeTabId = null;
+
 function render(verdict) {
   const head = document.getElementById("head");
   const face = document.getElementById("face");
@@ -22,10 +24,26 @@ function render(verdict) {
   const bar = document.getElementById("bar");
   const reasons = document.getElementById("reasons");
   const none = document.getElementById("none");
+  const trustWrap = document.getElementById("trust-wrap");
+
+  reasons.replaceChildren();
+  none.hidden = true;
+  trustWrap.hidden = true;
 
   if (!verdict) {
     title.textContent = "No data yet";
     score.textContent = "Reload the page to run a check.";
+    return;
+  }
+
+  // The user already trusted this site.
+  if (verdict.allowlisted) {
+    head.className = "ok";
+    meter.className = "meter ok";
+    face.textContent = META.ok.face;
+    title.textContent = "Trusted site";
+    score.textContent = "You chose to trust this site, so checks are off here.";
+    bar.style.width = "4%";
     return;
   }
 
@@ -54,14 +72,25 @@ function render(verdict) {
     row.append(dot, label, pts);
     reasons.appendChild(row);
   }
+
+  // Offer to trust the site only when it was actually flagged.
+  if (level === "warn" || level === "caution") trustWrap.hidden = false;
 }
 
 if (typeof chrome !== "undefined" && chrome.tabs && chrome.storage) {
+  document.getElementById("trust").addEventListener("click", () => {
+    if (activeTabId == null) return;
+    chrome.runtime.sendMessage({ type: "ALLOW_SITE", tabId: activeTabId }, (res) => {
+      if (res && res.ok) render({ level: "ok", score: 0, signals: [], allowlisted: true });
+    });
+  });
+
   // Read the verdict straight from storage.session. It survives a suspended
   // worker, so the popup still has data after the worker has been idle.
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     const tab = tabs[0];
     if (!tab) return render(null);
+    activeTabId = tab.id;
     const k = "verdict:" + tab.id;
     try {
       const stored = await chrome.storage.session.get(k);

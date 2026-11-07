@@ -243,9 +243,16 @@ export function analyzeUrl(urlString) {
 }
 
 // Full verdict. Used inside the extension, where we also have redirects and forms.
-export function analyze({ url, redirectChain = [], forms = [] }) {
+// `allowlist` holds registrable domains the user has chosen to trust; a page on
+// one of them is never flagged.
+export function analyze({ url, redirectChain = [], forms = [], allowlist = [] }) {
   let host = "";
   try { host = new URL(url).hostname; } catch { /* ignore */ }
+
+  if (allowlist.includes(registrableDomain(host))) {
+    return { url, score: 0, level: "ok", signals: [], allowlisted: true };
+  }
+
   const signals = [
     ...brandSignals(host),
     ...structuralSignals(url),

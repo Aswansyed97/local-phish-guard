@@ -46,6 +46,8 @@ Click the toolbar icon for the page's risk score and the signals that fired:
 
 Each signal adds points to a score from 0 to 100. Below 30 it stays quiet. From 30 to 59 it puts a caution badge on the icon. At 60 or more it shows the banner.
 
+If it flags a site you know is fine, the popup has a **Trust this site** button. That domain goes on an allowlist (stored in `chrome.storage.sync`, so it follows you across your signed-in browsers) and is never flagged again.
+
 ## Layout
 
 ```
@@ -111,7 +113,7 @@ node tools/evaluate.js data/real-phishing.txt data/real-legit.txt
 ## Permissions, and why
 
 - `webNavigation`, `webRequest` — to see redirect hops before a page loads.
-- `storage` — to keep the current page's verdict in `chrome.storage.session` so the popup still works after the background worker sleeps.
+- `storage` — to keep the current page's verdict in `chrome.storage.session` (so the popup still works after the worker sleeps) and your trusted-site allowlist in `chrome.storage.sync`.
 - host access is limited to `http://*/*` and `https://*/*`, and the content script runs only on those. No access to `file://` pages or browser internals.
 
 ## Privacy
